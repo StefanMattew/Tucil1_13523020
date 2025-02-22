@@ -7,7 +7,7 @@ public class Solver {
     private static char[][] board;
     private static List<char[][]> pieces = new ArrayList<>();
     private static long iterationCount;
-    private static char [][] piece;
+
     private static final String[] color = {
         "\u001B[31m", // Red
         "\u001B[32m", // Green
@@ -42,7 +42,7 @@ public class Solver {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Masukkan path file(.txt): ");
+        System.out.print("Masukkan path file(.txt): ");
         String fileName = scanner.nextLine();
         
 
@@ -68,15 +68,11 @@ public class Solver {
 
         System.out.print("Apakah anda ingin menyimpan solusi? (ya/tidak): ");
         if (scanner.nextLine().equalsIgnoreCase("ya")) {
-            saveFile(fileName + "_solution.txt");
+            saveFile("Solusi "+fileName );
         }
         scanner.close();
     }
     
-
-
-
-
 
     public static boolean cekReadFile(String fileName) {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
@@ -188,19 +184,7 @@ public class Solver {
     }
 
 
-    public static boolean solve (int pieceIndex){
-        if (pieceIndex >= pieces.size()){
-            return true;
-        }
-        
-        System.out.println("Trying piece index: " + pieceIndex);
-        
-        piece = pieces.get(pieceIndex);
-
-        //-------------
-        // generate
-
-        //---------------------
+    public static List<char[][]> createVariation(char[][] piece){
         Set<String> uniquePiece = new HashSet<>();
         List<char[][]> variations = new ArrayList<>();
 
@@ -218,7 +202,17 @@ public class Solver {
 
 
         }
+        return variations;
+    }
+    public static boolean solve (int pieceIndex){
+        if (pieceIndex >= pieces.size()){
+            return true;
+        }
+        
+        char[][] piece = pieces.get(pieceIndex);
 
+        List<char[][]> variations = createVariation(piece);
+        
         
         for (char[][] variant : variations) {
             for (int row = 0; row <= rows - variant.length; row++) {
@@ -290,9 +284,8 @@ public class Solver {
     }
 
     public static void placePiece(char[][]piece, int r, int c, char var ){
-        int h = piece.length;
 
-        for (int i = 0; i < h; i++) {
+        for (int i = 0; i < piece.length; i++) {
             for (int j = 0; j < piece[i].length; j++) {
                 if (piece[i][j] != ' ') {
                     board[r + i][c + j] = var;
@@ -302,9 +295,9 @@ public class Solver {
     }
 
     public static void removePiece (char[][] piece, int r , int c){
-        int h = piece.length;
 
-        for (int i = 0; i < h; i++) {
+
+        for (int i = 0; i < piece.length; i++) {
             for (int j = 0; j < piece[i].length; j++) {
                 if (piece[i][j] != ' ') {
                     board[r + i][c + j] = '.';
@@ -333,12 +326,14 @@ public class Solver {
         }
         System.out.println();
     }
+    
     public static void saveFile(String fileOutput){
         try (PrintWriter writer = new PrintWriter(fileOutput)) {
             for (char[] row : board) {
                 writer.println(new String(row));
             }
-            System.out.println("File berhasil disimpan di " + fileOutput);
+            System.out.println("File telah berhasil disimpan di " + fileOutput);
+
         } catch (IOException e) {
             System.out.println("Gagal menyimpan solusi.");
         }
