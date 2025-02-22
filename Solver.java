@@ -1,8 +1,6 @@
 import java.io.*;
 import java.util.*;
 
-
-
 public class Solver {
     private static int rows, cols, count_piece;
     private static String type_board;
@@ -39,20 +37,42 @@ public class Solver {
         "\u001B[38;5;46m",  // Dark Green
     };
 
+    private static final String reset_color = "\u001B[0m";
+
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Masukkan path file(.txt): ");
         String fileName = scanner.nextLine();
-
+        
 
         if (!cekReadFile(fileName)) {
             System.out.println("File tidak valid!");
+            scanner.close();
             return;
         }
 
+        long start = System.currentTimeMillis();
 
+        boolean solved = solve(0);
+
+        long end = System.currentTimeMillis();
+
+        if (solved) {
+            printBoard();
+        } else {
+            System.out.println("Tidak ditemukan solusi.\n");
+        }
+        System.out.println("Waktu pencarian: " + (end - start) + " ms\n");
+        System.out.println("Banyak kasus yang ditinjau: " + iterationCount +"\n");
+
+        System.out.print("Apakah anda ingin menyimpan solusi? (ya/tidak): ");
+        if (scanner.nextLine().equalsIgnoreCase("ya")) {
+            saveFile(fileName + "_solution.txt");
+        }
+        scanner.close();
     }
+    
 
 
 
@@ -62,7 +82,8 @@ public class Solver {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String[] info = reader.readLine().split(" ");
             
-            if (info[0]== null||info[1]==null || info[2]==null)return false;
+            if (info.length < 3) return false;
+
 
             rows = Integer.parseInt(info[0]);
             cols = Integer.parseInt(info[1]);
@@ -88,14 +109,14 @@ public class Solver {
 
 
             while ((line = reader.readLine()) != null) {
-                line = line.stripTrailing();    // delete space after piece
+                line = line.stripTrailing();    // delete spasi after piece
                 if( line.isEmpty()){
-                    continue;                   //skip empty line
+                    continue;                   //skip baris kosong
                 }
 
                 char firstChar = line.trim().charAt(0);    //mengambil char pertama (bukan spasi)
 
-                if ( firstChar== temp.charAt(0) || temp.isEmpty() ){  // jika karakter masi sama atau pertama
+                if ( temp.isEmpty() || firstChar== temp.charAt(0) ){  // jika karakter masi sama atau pertama
                     shapeLine.add(line);
                 }else{
                     pieces.add(convertToMatriks(shapeLine, temp.charAt(0)));//karakter baru,karakter lama diubah ke matriks
@@ -146,7 +167,7 @@ public class Solver {
     public static char[][] copyMatriks ( char[][] matriks){
         int r = matriks.length;
         int c = matriks[0].length;
-        char[][] copy = new char[rows][cols];
+        char[][] copy = new char[r][c];
     
         for (int i = 0; i < r; i++) {
             for (int j = 0; j < c; j++) {
@@ -184,10 +205,10 @@ public class Solver {
         List<char[][]> variations = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
-            piece = rotate90(piece);        //rotasi dicek 4 kali
+            piece = rotate(piece);        //rotasi dicek 4 kali
 
             if (uniquePiece.add(Arrays.deepToString(piece))) {
-                variations.add(copyMatrix(piece));  // tambahkan variasi dari rotate
+                variations.add(copyMatriks(piece));  // tambahkan variasi dari rotate
             }
 
             char[][] mirroredPiece = mirror(piece); // mirror hasil rotasi
@@ -217,24 +238,111 @@ public class Solver {
                         printBoard();
                         System.out.println("Iteration: " + iterationCount);
         
-                        // Jika solusi ditemukan, hentikan pencarian
+                            // jika solusi ditemukan
                         if (solve(pieceIndex + 1)) return true;
         
-                        // Jika tidak berhasil, hapus kembali
+                        // jika tidak berhasil
                         System.out.println("Removing piece " + pieceSymbol + " from (" + row + ", " + col + ")");
                         removePiece(variant, row, col);
                     }
                 }
             }
         }
-        
-
-
-
-
-
         return false;
     }
 
+    public static char[][] rotate (char[][] piece){ //rotate 90 degree
+        int h = piece.length;
+        int w = piece[0].length;
+        char[][] rotated = new char[w][h];
+        for (int i=0;i<h; i++ ){
+            for (int j=0 ; j<w ; j++){
+                rotated[j][h-1-i]= piece[i][j];
+            }
+        }
+        return rotated;
+    }
+
+    public static char[][] mirror (char[][] piece){ //mirror
+        int h = piece.length;
+        int w = piece[0].length;
+        char[][] mirrored = new char[h][w];
+        for (int i=0;i<h; i++ ){
+            for (int j=0 ; j<w ; j++){
+                mirrored[i][w-1-j]= piece[i][j];
+            }
+        }
+        return mirrored;
+
+
+    }
+    public static boolean canPlace(char[][] piece, int r, int c){
+        int h = piece.length;
+
+        for (int i =0 ; i<h ; i++){
+            for (int j=0; j<piece[i].length ; j++){
+                if (piece[i][j] != ' ' && board [r + i][c+j] != '.'){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static void placePiece(char[][]piece, int r, int c, char var ){
+        int h = piece.length;
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < piece[i].length; j++) {
+                if (piece[i][j] != ' ') {
+                    board[r + i][c + j] = var;
+                }
+            }
+        }
+    }
+
+    public static void removePiece (char[][] piece, int r , int c){
+        int h = piece.length;
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < piece[i].length; j++) {
+                if (piece[i][j] != ' ') {
+                    board[r + i][c + j] = '.';
+                }
+            }
+        }
+    }
+
+ 
+    public static void printBoard() {
+        Map<Character, String> colorMap = new HashMap<>();
+        
+        for (char c = 'A'; c <= 'Z'; c++) {
+            colorMap.put(c, color[(c - 'A') % color.length]);
+        }
+        
+        for (char[] row : board) {
+            for (char isi : row) {
+                if (isi == '.') {
+                    System.out.print(isi + " ");
+                } else {
+                    System.out.print(colorMap.get(isi) + isi + reset_color + " ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+    public static void saveFile(String fileOutput){
+        try (PrintWriter writer = new PrintWriter(fileOutput)) {
+            for (char[] row : board) {
+                writer.println(new String(row));
+            }
+            System.out.println("File berhasil disimpan di " + fileOutput);
+        } catch (IOException e) {
+            System.out.println("Gagal menyimpan solusi.");
+        }
     
+    }
+
 }
