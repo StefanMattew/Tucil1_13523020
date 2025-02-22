@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public class Solver {
+public class IQPuzzlePro {
     private static int rows, cols, count_piece;
     private static String type_board;
     private static char[][] board;
