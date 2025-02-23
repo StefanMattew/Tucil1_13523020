@@ -111,7 +111,7 @@ public class IQPuzzlePro {
             if (info.length < 3) return false;
 
 
-            rows = Integer.parseInt(info[0]);
+            rows = Integer.parseInt(info[0]); 
             cols = Integer.parseInt(info[1]);
             count_piece = Integer.parseInt(info[2]);
 
@@ -325,8 +325,6 @@ public class IQPuzzlePro {
     }
 
     public static void removePiece (char[][] piece, int r , int c){
-
-
         for (int i = 0; i < piece.length; i++) {
             for (int j = 0; j < piece[i].length; j++) {
                 if (piece[i][j] != ' ') {
@@ -335,15 +333,13 @@ public class IQPuzzlePro {
             }
         }
     }
-
  
     public static void printBoard() {
         Map<Character, String> colorMap = new HashMap<>();
         
         for (char c = 'A'; c <= 'Z'; c++) {
             colorMap.put(c, color[(c - 'A') % color.length]);
-        }
-        
+        } 
         for (char[] row : board) {
             for (char isi : row) {
                 if (isi == '.') {
@@ -384,7 +380,6 @@ public class IQPuzzlePro {
             colorMap.put(c, new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)));
         }
         
-        // Menggambar grid puzzle
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 char block = board[r][c];
@@ -396,7 +391,6 @@ public class IQPuzzlePro {
                 g2d.drawRect(c * cellSize, r * cellSize, cellSize, cellSize);
             }
         }
-        
         g2d.dispose();
         
         try {

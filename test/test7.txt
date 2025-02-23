@@ -1,0 +1,18 @@
+10 10 7
+DEFAULT
+G
+B
+BBB
+ B
+ B
+ BB
+C
+AA
+A
+AAA
+KKK
+LL
+M M
+M M
+MMM
+
