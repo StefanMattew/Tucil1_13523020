@@ -1,9 +1,8 @@
 # Tucil1_13523020
 
-1. Penjelasan singkat program yang dibuat
-Program sederhana dalam implementasi algoritma Brute Force untuk mencari solusi pada permainan IQ Puzzler Pro..
+Program sederhana dalam implementasi algoritma Brute Force untuk mencari solusi pada permainan IQ Puzzler Pro.
 
-2. Requirement program dan instalasi tertentu bila ada.
+Requirement program dan instalasi tertentu bila ada.
   Requirement:
     Java Development Kit (JDK) 8 atau lebih baru
     Sistem operasi Windows, macOS, atau Linux
