@@ -1,5 +1,10 @@
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+
+import javax.imageio.ImageIO;
+import java.awt.Color;
 
 public class IQPuzzlePro {
     private static int rows, cols, count_piece;
@@ -90,6 +95,10 @@ public class IQPuzzlePro {
         System.out.print("Apakah anda ingin menyimpan solusi? (ya/tidak): ");
         if (scanner.nextLine().equalsIgnoreCase("ya")) {
             saveFile("Solusi "+fileName );
+        }
+        System.out.print("Apakah anda ingin menyimpan solusi gambar? (ya/tidak): ");
+        if (scanner.nextLine().equalsIgnoreCase("ya")) {
+            saveImage("Solusi gambar "+fileName );
         }
         scanner.close();
     }
@@ -247,17 +256,17 @@ public class IQPuzzlePro {
                             pieceSymbol = piece[0][index++];
                         }
         
-                        System.out.println("Placing piece " + pieceSymbol + " at (" + row + ", " + col + ")");
+                        System.out.println("Place piece" + pieceSymbol + " : " + row + " , " + col );
                         placePiece(variant, row, col, pieceSymbol);
                         iterationCount++;
                         printBoard();
-                        System.out.println("Iteration: " + iterationCount);
+                        System.out.println("Count: " + iterationCount);
         
                             // jika solusi ditemukan
                         if (solve(pieceIndex + 1)) return true;
         
                         // jika tidak berhasil
-                        System.out.println("Removing piece " + pieceSymbol + " from (" + row + ", " + col + ")");
+                        System.out.println("Remove piece " + pieceSymbol + " : " + row + " , " + col );
                         removePiece(variant, row, col);
                     }
                 }
@@ -359,6 +368,44 @@ public class IQPuzzlePro {
             System.out.println("Gagal menyimpan solusi.");
         }
     
+    }
+    public static void saveImage(String fileName){
+        int cellSize =50;
+        int l = cols *cellSize;
+        int t = rows *cellSize;
+
+        BufferedImage image = new BufferedImage (l,t,BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+
+        Map<Character, Color> colorMap = new HashMap<>();
+        Random rand = new Random();
+        
+        for (char c = 'A'; c <= 'Z'; c++) {
+            colorMap.put(c, new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256)));
+        }
+        
+        // Menggambar grid puzzle
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                char block = board[r][c];
+                if (block != '.') {
+                    g2d.setColor(colorMap.getOrDefault(block, Color.GRAY));
+                    g2d.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
+                }
+                g2d.setColor(Color.BLACK);
+                g2d.drawRect(c * cellSize, r * cellSize, cellSize, cellSize);
+            }
+        }
+        
+        g2d.dispose();
+        
+        try {
+            ImageIO.write(image, "png", new File(fileName + ".png"));
+            System.out.println("Solusi telah disimpan sebagai gambar: " + fileName + ".png");
+        } catch (IOException e) {
+            System.out.println("Gagal menyimpan gambar solusi.");
+        }
+
     }
 
 }
